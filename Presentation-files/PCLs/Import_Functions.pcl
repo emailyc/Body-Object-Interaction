@@ -1,0 +1,162 @@
+# ------------------------------- PCL Part ------------------------------
+
+#  Functions 
+
+sub int read_response
+begin
+	if in_port.total_count() > 0 then
+		int resp = in_port.codes(1);
+		return resp;
+	end;
+	return 0;
+end;	
+
+sub
+	print_to_txt(string block, string trial_number, string path_parts_1, string path_parts_2, string path_parts_3, string dyno_response, string duration)
+begin
+	string details = 
+						logfile.subject()			+ "," +
+						block							+ "," +
+						trial_number				+ "," +
+						path_parts_1 				+ "," + 	#Probe condition
+						path_parts_2				+ "," + 	#middle file name
+						path_parts_3				+ "," + 	#filename	
+						dyno_response				+ "," + 	
+						duration						+ "\n" ;
+	
+	outputFile.print( details );
+end;	
+
+sub 
+	play_instruct_trial( string instruction_text )
+begin
+	instruct_text.set_caption( instruction_text );   
+	elseif (path.find("High_BOI") > 0 ) then				
+		sound_event.set_port_code ( High_BOI_Port );
+	elseif (path.find("Low_BOI") > 0 ) then	
+		sound_event.set_port_code ( Low_BOI_Port );						
+	elseif (path.find("Abstract") > 0 ) then	
+		sound_event.set_port_code ( Abstract_BOI_Port );
+	end;
+	
+	
+	sound_trial.present();
+	in_port.clear();													#Since we only want the response after the stimuli has finished playing, we clear the port history up until this point.
+	wait_interval( THREE_SEC );									#Give participant 3 seconds to respond
+	out_port.send_code( reset_outport ); 						#reset voltage of both AI1 and AI2 on LabView programme to 0. This indicates the end of the current trial on LabView output.
+	the_sound_stimuli_object.get_wavefile().unload();
+	anchor_text.unload();
+	
+	stimulus_data last = stimulus_manager.last_stimulus_data();
+	
+	print_to_txt(	block,
+						string(trial_number),
+						path_parts[1],
+						path_parts[path_parts.count() - 1],
+						path_parts[path_parts.count()],
+						string(read_response()),
+						string(last.reaction_time_double() + THREE_SEC)
+					);
+end;
+
+sub
+   play_feedback_trial
+begin
+	fb_text.load();
+	fb_trial.present();
+	out_port.send_code( reset_outport );
+	fb_text.unload();
+	stimulus_data last = stimulus_manager.last_stimulus_data();
+	
+	print_to_txt(	"NA",
+						"Feedback",
+						"NA",
+						"NA",
+						"NA",
+						"NA",
+						string(last.reaction_time_double())
+					);
+end;
+
+sub
+   play_end_block_trial( string caption )
+begin
+	end_block_text.set_caption( caption );
+	end_block_text.load();
+	end_block_trial.present();	
+	out_port.send_code( reset_outport );
+	stimulus_data last = stimulus_manager.last_stimulus_data();
+	print_to_txt(	"NA",
+						"End of Block",
+						"NA",
+						"NA",
+						"NA",
+						"NA",
+						string(last.reaction_time_double())
+					);
+end;
+
+
+sub
+   play_ITI_trial( int time )
+begin
+	ITI_trial.set_duration( time );	
+	ITI_trial.present();
+	out_port.send_code( reset_outport ); #reset voltage of both AI1 and AI2 on LabView programme to 0. This indicates the end of the current trial on LabView output.
+	print_to_txt(	"NA",
+						"ITI",
+						"NA",
+						"NA",
+						"NA",
+						"NA",
+						string(time)
+					);
+end;
+
+sub
+    play_break_trial
+begin
+	caption_1.set_caption( "BREAK" );
+	caption_1.load();
+	caption_2.load();
+	
+	break_trial.present();
+	out_port.send_code( reset_outport );
+	
+	caption_1.unload();
+	caption_2.unload();
+	
+	stimulus_data last = stimulus_manager.last_stimulus_data();
+	
+	print_to_txt(	"NA",
+						"Break",
+						"NA",
+						"NA",
+						"NA",
+						"NA",
+						string(last.reaction_time_double())
+					);
+end;
+
+
+sub array<string, 2> read_sequence_file( string num )
+begin
+	array<string>trial_seq[0][0]; # dimension: 4 blks * 49 trials
+	string stim_filename = stimulus_directory + "\\trial_seq_by_subj\\" + num + "_4blk_trialseq.txt";
+	term.print(stim_filename);
+	input_file in = new input_file;
+	if ( !file_exists( stim_filename ) ) then
+		exit( "Error: The stimulus file '" + stim_filename + "', does not exist." );
+	end;
+	in.open( stim_filename );
+
+	loop until in.end_of_file() begin
+		 string this_line = in.get_line();
+		 array<string> temp[0];
+		 this_line.split( " ", temp );
+		 trial_seq.add( temp );
+	end;
+	
+	return trial_seq; #2-d string array 
+end;
+

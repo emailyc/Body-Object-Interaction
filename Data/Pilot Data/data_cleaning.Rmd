@@ -1,0 +1,113 @@
+---
+title: "BOI_data_clean"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(stringr)
+```
+
+
+```{r clean_dataset}
+file_path <- file.choose()
+pressure_data = read.csv(sep = ',', file_path)
+pressure_data = pressure_data[, c(1, 2, 4, 5)]
+colnames(pressure_data) <- c("Left.Reading", "Right.Reading", "Stimuli", "Experiment.Time.Clock..Micro.Sec.")
+pressure_data = filter(pressure_data, Left.Reading > 0 | Right.Reading > 0 | Stimuli != -1)
+pressure_data$trial <- 1
+
+#add trial number
+for (row in 2:nrow(pressure_data))
+{
+       if(pressure_data$Stimuli[row] == pressure_data$Stimuli[row - 1] || pressure_data$Stimuli[row] == -1)
+       {
+               pressure_data[row, "trial"] <- pressure_data$trial[row - 1]
+               
+       } else 
+       {
+               pressure_data[row, "trial"] <- pressure_data$trial[row - 1] + 1
+       }
+}
+
+#remove first 4 trials which are study phases; last trial failed
+pressure_data = filter(pressure_data, (5 <= trial) & (trial < max(pressure_data$trial))) 
+
+#shift start time
+pressure_data$Experiment.Time.Clock..Micro.Sec. <- pressure_data$Experiment.Time.Clock..Micro.Sec. - pressure_data$Experiment.Time.Clock..Micro.Sec.[1]
+
+#shift trial number
+pressure_data$trial <- pressure_data$trial - 4
+```
+
+```{r extract_stimuli_presentation_sequence}
+trial_stimuli = rle(as.character(pressure_data$Stimuli))$values
+trial_stimuli <- trial_stimuli[trial_stimuli != "-1"]
+```
+
+```{r cleaning-helper-function}
+getcorrectness_func <- function(parti_num)
+{
+        is_odd <- ifelse(parti_num %% 2, 1, 0)
+        answer_under_odd <- 0
+        
+        #use Concrete RIGHT ABSTRACT LEFT as base condition. i.e. odd participants
+        corrtness <- function(stimuli, left_max, right_max)
+        {
+                if (stimuli == "Abstract")
+                {
+                        answer_under_odd <- ifelse(left_max > right_max, 1, 0)
+                        
+                } else {
+                        #stimuli == "High_BOI" or "Low_BOI"
+                        answer_under_odd <- ifelse(right_max > left_max, 1, 0)
+                }
+                
+                ifelse(is_odd, answer_under_odd, 1-answer_under_odd)
+        }
+        
+        return(corrtness)
+}
+```
+
+```{r pressure, echo=FALSE}
+
+participant_number <- as.integer(strsplit(basename(file_path), "\\.")[[1]][1])
+report <- data.frame(stimuli = trial_stimuli, correctness = 0, rt = 0, time_to_peak = 0, pressure_duration = 0)
+check_correctness <- getcorrectness_func(participant_number)
+for (trial in 1:nrow(report))
+{
+        #for each trial
+        trial_DF <- pressure_data[pressure_data$trial == trial,] 
+        run_length <- rle(as.character(trial_DF$Stimuli))
+        if(length(run_length$lengths)!=2)
+        {
+                report[trial, c("correctness", "rt", "time_to_peak", "pressure_duration")] <- c(0,-1,-1,-1)
+                next
+        }
+
+        #whether correct response was made
+        report[trial, "correctness"] <- check_correctness(trial_stimuli[trial], max(trial_DF$Left.Reading), max(trial_DF$Right.Reading))
+        
+        #calculate time between end of stimuli and start of pressure
+        row_of_final_stimuli <- run_length$length[1]
+        row_of_first_response <- row_of_final_stimuli + 1
+        stimuli_end_time <- trial_DF$Experiment.Time.Clock..Micro.Sec.[row_of_final_stimuli]
+        pressure_start_time <- trial_DF$Experiment.Time.Clock..Micro.Sec.[row_of_first_response]
+        report[trial, "rt"] <- pressure_start_time -  stimuli_end_time
+        
+        #Now only look at pressure applied after the stimulus finished playing
+        trial_DF <- filter(trial_DF, Stimuli == -1)
+        
+        #calculate time to peak pressure
+        row_of_peak_pressure <- with(trial_DF, which.max(Left.Reading+Right.Reading))
+        peak_pressure_time <- trial_DF$Experiment.Time.Clock..Micro.Sec.[row_of_peak_pressure]
+        report[trial, "time_to_peak"] <- peak_pressure_time - pressure_start_time
+        
+        #calculate how long pressure was applied for
+        pressure_end_time <- trial_DF$Experiment.Time.Clock..Micro.Sec.[nrow(trial_DF)]
+        report[trial, "pressure_duration"] <- pressure_end_time - pressure_start_time
+}
+```
+

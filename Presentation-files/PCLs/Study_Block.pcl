@@ -1,0 +1,25 @@
+# ------------------------------- PCL Part ------------------------------
+string BLOCK = "study";
+int caption_idx = 1;
+
+loop
+	 int trial_num = 1
+until
+	 trial_num > study_count
+begin
+	if ( caption_idx == 1 ) then
+		fb_text.set_caption( lang.get_text( "Concrete Caption" ) );
+	else
+		fb_text.set_caption( lang.get_text( "Abstract Caption" ) );
+	end;	
+	
+	play_ITI_trial( ONE_SEC );	
+	play_sound_trial(study[trial_num], BLOCK, trial_num);
+	play_feedback_trial();
+	
+	caption_idx = 2 /caption_idx; #Alternating between concrete and abstract
+	trial_num = trial_num + 1
+end;
+
+play_ITI_trial( ONE_SEC );	#Just to indicate the end of study block. This generates signal on both AI1 and AI2 for 1 second on LabView programme.
+play_end_block_trial( lang.get_text( "End Study Caption" ) );

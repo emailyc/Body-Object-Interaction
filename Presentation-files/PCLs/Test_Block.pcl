@@ -1,0 +1,21 @@
+# ------------------------------- PCL Part ------------------------------
+BLOCK = "test";
+
+loop 
+	int trial_num = 1
+until trial_num > sound_addresses.count()
+begin	
+
+	int this_iti = random( ONE_SEC, TWO_SEC );
+	play_ITI_trial( this_iti );	
+	play_sound_trial(sound_addresses[trial_num], BLOCK, trial_num);
+	
+	if ((trial_num) % 50 == 0) && (trial_num < sound_addresses.count())  then
+		play_ITI_trial( ONE_SEC );
+		play_break_trial();
+	end;
+	
+	trial_num = trial_num + 1;
+
+end;
+

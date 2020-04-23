@@ -1,0 +1,23 @@
+#array<string> abstract[0];
+array<string> sound_addresses[0];
+
+array<string> abstract[0];
+get_directory_files(stimulus_directory + "Abstract", abstract);
+
+array<string> high_BOI[0];
+get_directory_files(stimulus_directory + "Concrete/High_BOI", high_BOI);
+
+array<string> low_BOI[0];
+get_directory_files(stimulus_directory + "Concrete/Low_BOI", low_BOI);
+
+sound_addresses.append(abstract);
+sound_addresses.append(high_BOI);
+sound_addresses.append(low_BOI);
+sound_addresses.shuffle();
+
+array<string> study[0];
+int study_count = get_directory_files(stimulus_directory + "Study_Block", study);
+
+
+
+

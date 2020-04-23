@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<experiment_text language="English">
+  <map name="default">
+    <item key="Instructions">In this experiment, we are interested in how well you can judge the concrete/abstractness of a word.
+
+A series of words will be spoken. Your task is to judge whether each word is CONCRETE or Abstract. 
+
+This experiment will start by familiarizing you with some concrete and abstract words first, the test session. 
+
+Only during the test session will you be required you to make responses.
+
+Please refrain from counting or foot-tapping. It is very important to remember duration by heart.
+
+Press SPACE to begin listening to sample concrete and abstract words.</item>
+    <item key="Concrete Caption">The word was: CONCRETE.</item>
+    <item key="Abstract Caption">The word was: ABSTRACT.</item>
+<item key="End Study Caption"> There are no more sample concrete and abstract words.</item>
+
+    <item key="Response Prompt Caption SHORT RIGHT LONG LEFT">Squeeze the handle if you think the word is an abstract word.
+
+Squeeze [RIGHT] handle if it is closer to the SHORT target duration.
+
+Press SPACE to begin practice session when you are ready.</item>
+<item key="Response Prompt Caption LONG RIGHT SHORT LEFT">Squeeze [RIGHT] handle if you think the duration of this tone is closer to the LONG target duration.
+
+Squeeze [LEFT] handle if it is closer to the SHORT target duration.
+
+Press SPACE to begin practice session when you are ready.</item>
+    <item key="Feedback correct Caption">Correct!</item>
+    <item key="Feedback wrong Caption">Incorrect!</item>
+    <item key="Feedback slow Caption">Too slow!</item>
+<item key="Feedback Long">The sound was LONG</item>
+<item key="Feedback Short">The sound was SHORT</item>
+    <item key="No Instructions Caption">Press SPACE to begin the next part.</item>
+    
+
+    <item key="Rest Screen Caption">Click the left mouse button to begin when you are ready to move on to the next part.</item>
+    <item key="Progress Bar Caption">Progress:</item>
+    <item key="Practice Caption">You will start by doing a few examples for practice.
+If you fail to get the target durations correct, you will repeat this practice.</item>
+    <item key="Practice Complete Caption">You have completed the practice.
+	
+ 
+Click SPACE to start the actual experiment.
+
+Please try your best to stay attentative and do your best!</item>
+<item key="Practice Repeat Caption">You must repeat the practice to contiune.</item>
+<item key="Practice Fail Caption">Sorry, you are required to repeat this practice until you are ready to start the experiment. Please try harder this time!
+
+Click SPACE to practice again.
+
+</item>
+    <item key="Completion Screen Caption">You have finished the experiment. Thank you very much for participating! Please inform the experimenter.</item>
+    <item key="Block Complete Caption">In this block, you have correctly identified [BLOCK_STATS] of the target durations.
+
+You have completed [BLOCK_NUMBER] block(s). 
+
+There are [TOTAL_BLOCKS] blocks in the experiment. 
+
+Press SPACE to move on.</item>
+    <item key="Next Screen Caption">Press SPACE to continue.</item>
+    <item key="Multi-Screen Start Experiment Caption">Press SPACE to start the experiment when you are ready.</item>
+    <item key="Start Experiment Caption">Press SPACE to start the experiment when you are ready.</item>
+    <item key="Word Wrap Mode">Word</item>
+  </map>
+</experiment_text>
